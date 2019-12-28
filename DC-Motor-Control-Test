@@ -1,0 +1,51 @@
+const int switchPin = 2;
+const int  motorPin = 9;
+int switchState = 0;
+
+const int joySwitchPin = 3;
+const int xPin = 0;
+const int yPin = 1;
+int motorValue = 0;
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(motorPin, OUTPUT);
+  pinMode(switchPin, INPUT);
+
+  pinMode(joySwitchPin, INPUT);
+  digitalWrite(joySwitchPin, HIGH);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  switchState = digitalRead(switchPin);
+
+  double motorPower = (analogRead(xPin)/1023.00)*255;
+
+  if(switchState == HIGH){
+      for(int motorValue = 0 ; motorValue <= 255; motorValue +=5){
+        analogWrite(motorPin, motorValue); 
+        delay(30);      
+      }
+      for(int motorValue = 255 ; motorValue >= 0; motorValue -=5){
+        analogWrite(motorPin, motorValue); 
+        delay(30);      
+      }
+  }
+  else{
+    digitalWrite(motorPin, LOW);  
+  }
+
+  Serial.print("X: ");
+  Serial.print(analogRead(xPin));
+  Serial.print(" Y: ");
+  Serial.print(analogRead(yPin));
+  Serial.print(" Z: ");
+  Serial.println(digitalRead(joySwitchPin));
+  Serial.print(" Power: ");
+  Serial.println(motorPower);
+  delay(250);
+
+}
