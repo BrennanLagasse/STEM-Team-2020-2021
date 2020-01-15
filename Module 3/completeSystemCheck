@@ -1,0 +1,88 @@
+//H-Bridge
+const int controlPin1 = 3;
+const int controlPin2 = 4;
+const int enablePin = 9;
+
+//Controller
+const int joySwitchPin = 2;
+const int xPin = 0;
+const int yPin = 1;
+
+//Laser
+const int laser = 10;
+
+//Variables
+int motorEnabled = 0;
+int motorSpeed = 0;
+int buttonCurrent = 0;
+int buttonLast = 0;
+double x = 0;
+double y = 1;
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(controlPin1, OUTPUT);
+  pinMode(controlPin2, OUTPUT);
+  pinMode(enablePin, OUTPUT);
+  pinMode(laser, OUTPUT);
+  
+  pinMode(joySwitchPin, INPUT);
+  digitalWrite(joySwitchPin, HIGH);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+  //Collect inputs
+  buttonCurrent = digitalRead(joySwitchPin);
+  x = analogRead(xPin);
+  y = analogRead(yPin);
+
+  //Switch state everytime the button is pressed (with release)
+  if(buttonCurrent == 0 && buttonLast == 1){
+    motorEnabled = !motorEnabled;
+  }
+
+  //Update buttonLast
+  buttonLast = buttonCurrent;
+
+  //Power and Direction
+  if(x>525){
+    motorSpeed = ((x-511.50)/511.50)*255;
+    digitalWrite(controlPin1, HIGH);
+    digitalWrite(controlPin2, LOW);
+    
+  }
+  else if(x<520){
+    motorSpeed = -((x-511.50)/511.50)*255;
+    digitalWrite(controlPin1, LOW);
+    digitalWrite(controlPin2, HIGH);
+  }
+  else{
+    motorSpeed = 0;
+  }
+
+
+  //Run motor if enabled
+  if(motorEnabled){
+    analogWrite(enablePin, motorSpeed);
+    digitalWrite(laser, HIGH);
+  }
+  else{
+    analogWrite(enablePin, 0);
+    digitalWrite(laser, LOW);
+  }
+
+  //Print Everything
+    Serial.print("X: ");
+    Serial.print(x);
+    Serial.print(" Y: ");
+    Serial.print(y);
+    Serial.print(" Button: ");
+    Serial.print(buttonCurrent);
+    Serial.print(" Speed: ");
+    Serial.println(motorSpeed);
+    delay(250);
+}
